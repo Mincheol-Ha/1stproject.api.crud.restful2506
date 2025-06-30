@@ -32,13 +32,13 @@ public class BoardController {
     }
 
     @PutMapping("/posts/{postId}")
-    public ResponseEntity updatePost(@PathVariable Integer postId, @RequestBody PostRequestDto postRequestDto) {
+    public ResponseEntity<String> updatePost(@PathVariable Integer postId, @RequestBody PostRequestDto postRequestDto) {
         postService.updatePost(postId, postRequestDto);
         return  ResponseEntity.ok("수정 되었습니다.");
     }
 
     @DeleteMapping("/posts/{postId}")
-    public ResponseEntity deletePost(@PathVariable Integer postId) {
+    public ResponseEntity<String> deletePost(@PathVariable Integer postId) {
         postService.deletePost(postId);
         return ResponseEntity.ok("게시글 삭제");
     }

@@ -18,9 +18,15 @@ public class CommentController {
     private final CommentService commentService;
 
     @PostMapping("/comments")
-    public ResponseEntity<String> createComment(@RequestBody CommentRequestDto commentRequestDto) {
-        commentService.createComment(commentRequestDto);
-        return ResponseEntity.ok("댓글 작성됨");
+    public CommentResponseDto createComment(@RequestBody CommentRequestDto commentRequestDto) {
+        return commentService.createComment(commentRequestDto);
+    }
+
+    @GetMapping("/comments/post/{postId}")
+    public ResponseEntity<List<CommentResponseDto>> getCommentsByPost(@PathVariable Integer postId) {
+        List<CommentResponseDto> comments = commentService.findByPostId(postId);
+        return ResponseEntity.ok(comments);
+
     }
 
     @PutMapping("/comments/{id}")
@@ -35,12 +41,6 @@ public class CommentController {
         return ResponseEntity.ok("삭제 되었습니다.");
     }
 
-    @GetMapping("/comments/post/{postId}")
-    public ResponseEntity<List<CommentResponseDto>> getCommentsByPost(@PathVariable Integer postId) {
-        List<CommentResponseDto> comments = commentService.findByPostId(postId);
-        return ResponseEntity.ok(comments);
-
-    }
 
 
 

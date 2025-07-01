@@ -27,6 +27,12 @@ public class ApiResponseAdvice implements ResponseBodyAdvice<Object> {
         if (body instanceof ApiResponse) {
             return body;
         }
+
+        // 반환 타입이 String이면 그대로 반환 (중요!)
+        if (body instanceof String) {
+            return body;
+        }
+
         // 공통 응답으로 래핑
         return ApiResponse.builder()
                 .status(HttpStatus.OK.value())

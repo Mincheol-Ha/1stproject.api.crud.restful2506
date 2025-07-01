@@ -1,5 +1,6 @@
 package com.example.mincheol1sr2.service;
 
+import com.example.mincheol1sr2.config.JwtProvider;
 import com.example.mincheol1sr2.dto.LoginRequestDto;
 import com.example.mincheol1sr2.dto.LoginResponseDto;
 import com.example.mincheol1sr2.dto.SignupRequestDto;
@@ -15,6 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class UserService {
 
     private final UserJpaRepository userJpaRepository;
+    private final JwtProvider jwtProvider;
 
     @Transactional
     public SignupResponseDto signup(SignupRequestDto signupRequestDto) {
@@ -46,9 +48,17 @@ public class UserService {
         UserEntity user = userJpaRepository.findByEmailAndPassword(loginRequestDto.getEmail(), loginRequestDto.getPassword())
                 .orElseThrow(() -> new IllegalArgumentException("이메일또는 비밀번호가 다릅니다."));
 
+        if (!user.getPassword().equals(loginRequestDto.getPassword())) {
+            throw new IllegalArgumentException("이메일또는 비밀번호가 다릅니다.");
+        }
+
+        String accessToken = jwtProvider.generateToken(user);
+
+
         return LoginResponseDto.builder()
                 .email(user.getEmail())
                 .message("로그인 성공!")
+                .accessToken(accessToken)
                 .build();
 
 

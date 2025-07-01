@@ -32,9 +32,8 @@ public class BoardController {
     }
 
     @PutMapping("/posts/{postId}")
-    public ResponseEntity<String> updatePost(@PathVariable Integer postId, @RequestBody PostRequestDto postRequestDto) {
-        postService.updatePost(postId, postRequestDto);
-        return  ResponseEntity.ok("수정 되었습니다.");
+    public PostResponseDto updatePost(@PathVariable Integer postId, @RequestBody PostRequestDto postRequestDto) {
+       return postService.updatePost(postId, postRequestDto);
     }
 
     @DeleteMapping("/posts/{postId}")

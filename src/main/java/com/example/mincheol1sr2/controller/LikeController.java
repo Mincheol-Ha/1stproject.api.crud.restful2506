@@ -22,11 +22,12 @@ public class LikeController {
     @DeleteMapping("/{postId}/likes")
     public ResponseEntity<?> removeLike(
             @PathVariable Integer postId,
-            @RequestBody PostLikeRequestDto postLikeRequestDto
-    ) {
+            @RequestBody PostLikeRequestDto postLikeRequestDto) {
+
         postLikeService.removeLike(postId, postLikeRequestDto);
         return ResponseEntity.ok("좋아요 취소!");
     }
+
     // 좋아요 개수 조회
     @GetMapping("/{postId}/likes/count")
     public ResponseEntity<Integer> countLikes(@PathVariable Integer postId) {

@@ -18,7 +18,8 @@ public class BoardController {
 
     @PostMapping("/signup")
     public SignupResponseDto Signup(@RequestBody SignupRequestDto signupRequestDto) {
-       return userService.signup(signupRequestDto);
+        return userService.signup(signupRequestDto);
+
     }
 
     @PostMapping("/login")

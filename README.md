@@ -16,14 +16,56 @@
 - Lombok
 - Gradle
 
-### 메서드	엔드포인트	설명
-### POST	/api/signup	회원가입
-### POST	/api/login	로그인
-### GET	/api/posts	게시글 목록 조회
-### POST	/api/posts	게시글 작성
-### PUT	/api/posts/{id}	게시글 수정
-### DELETE	/api/posts/{id}	게시글 삭제
-### POST	/api/comments	댓글 작성
-### DELETE	/api/comments/{id}	댓글 삭제
-### POST	/api/likes	좋아요 등록
-### DELETE	/api/likes	좋아요 취소
+## Board API 엔드포인트
+
+### 1. 회원가입 및 로그인
+- **POST /api/signup**
+    - RequestBody: SignupRequestDto
+    - Response: SignupResponseDto
+- **POST /api/login**
+    - RequestBody: LoginRequestDto
+    - Response: LoginResponseDto
+
+### 2. 게시글(Post)
+- **POST /api/posts**
+    - RequestBody: PostRequestDto
+    - Response: PostResponseDto
+- **PUT /api/posts/{postId}**
+    - PathVariable: postId
+    - RequestBody: PostRequestDto
+    - Response: PostResponseDto
+- **DELETE /api/posts/{postId}**
+    - PathVariable: postId
+    - Response: "게시글 삭제"
+
+### 3. 댓글(Comment)
+- **POST /api/comments**
+    - RequestBody: CommentRequestDto
+    - Response: CommentResponseDto
+- **GET /api/comments/post/{postId}**
+    - PathVariable: postId
+    - Response: List<CommentResponseDto>
+- **PUT /api/comments/{id}**
+    - PathVariable: id
+    - RequestBody: CommentRequestDto
+    - Response: "댓글 수정 완료"
+- **DELETE /api/comments/{id}**
+    - PathVariable: id
+    - Response: "삭제 되었습니다."
+
+### 4. 댓글 좋아요(Comment Like)
+- **POST /api/commentlikes**
+    - RequestBody: CommentLikeRequestDto
+    - Response: CommentLikeResponseDto
+- **DELETE /api/commentlikes**
+    - RequestBody: CommentLikeDeleteRequestDto
+    - Response: CommentLikeDeleteResponseDto
+
+### 5. 게시글 좋아요(Post Like)
+- **DELETE /api/{postId}/likes**
+    - PathVariable: postId
+    - RequestBody: PostLikeRequestDto
+    - Response: "좋아요 취소!"
+- **GET /api/{postId}/likes/count**
+    - PathVariable: postId
+    - Response: Integer (좋아요 개수)

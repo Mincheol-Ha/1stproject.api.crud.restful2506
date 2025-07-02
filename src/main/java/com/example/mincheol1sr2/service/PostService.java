@@ -6,6 +6,8 @@ import com.example.mincheol1sr2.entity.PostEntity;
 import com.example.mincheol1sr2.repository.PostJpaRepository;
 import com.example.mincheol1sr2.repository.UserJpaRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -21,18 +23,21 @@ public class PostService {
     @Transactional
     public PostResponseDto createPost(PostRequestDto postRequestDto) {
 
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        String currentUserEmail = auth.getName();
+
         PostEntity post = PostEntity.builder()
                 .title(postRequestDto.getTitle())
-                .author(postRequestDto.getAuthor())
+                .author(currentUserEmail)
                 .content(postRequestDto.getContent())
                 .build();
 
         PostEntity saved = postJpaRepository.save(post);
 
         return PostResponseDto.builder()
-                .title(post.getTitle())
-                .content(post.getContent())
-                .author(post.getAuthor())
+                .title(saved.getTitle())
+                .content(saved.getContent())
+                .author(saved.getAuthor())
                 .message("게시글 작성 성공!")
                 .createAt(saved.getCreateAt())
                 .build();

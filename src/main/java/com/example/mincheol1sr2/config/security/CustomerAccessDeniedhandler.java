@@ -14,9 +14,9 @@ import java.io.IOException;
 @Component
 public class CustomerAccessDeniedhandler implements AccessDeniedHandler {
     @Override
-    public void handle(HttpServletRequest request, HttpServletResponse response, AccessDeniedException accessDeniedException) throws IOException, ServletException {
-        accessDeniedException.printStackTrace();
-        response.sendRedirect("/exceptions/access-denied");
-
+    public void handle(HttpServletRequest request, HttpServletResponse response, AccessDeniedException accessDeniedException) throws IOException {
+        response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+        response.setContentType("application/json; charset=UTF-8"); // charset 명시!
+        response.getWriter().write("{\"error\": \"권한이 없습니다.\"}");
     }
 }

@@ -30,15 +30,13 @@ public class CommentController {
     }
 
     @PutMapping("/comments/{id}")
-    public ResponseEntity<String> updateComment(@PathVariable Integer id, @RequestBody CommentRequestDto commentRequestDto) {
-        commentService.updateComment(id, commentRequestDto);
-        return  ResponseEntity.ok("댓글 수정 완료");
+    public CommentResponseDto updateComment(@PathVariable Integer id, @RequestBody CommentRequestDto commentRequestDto) {
+        return commentService.updateComment(id, commentRequestDto);
     }
 
     @DeleteMapping("/comments/{id}")
-    public ResponseEntity<String> deleteComment(@PathVariable Integer id)  {
-        commentService.deleteComment(id);
-        return ResponseEntity.ok("삭제 되었습니다.");
+    public CommentResponseDto deleteComment(@PathVariable Integer id)  {
+        return commentService.deleteComment(id);
     }
 
 

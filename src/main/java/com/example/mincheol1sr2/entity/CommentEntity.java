@@ -39,4 +39,7 @@ public class CommentEntity {
         @LastModifiedDate
         private LocalDateTime updateAt;
 
+    public void update(String content) {
+            this.content = content;
+    }
 }

@@ -1,6 +1,7 @@
 package com.example.mincheol1sr2.service;
 
 import com.example.mincheol1sr2.config.JwtProvider;
+import com.example.mincheol1sr2.config.security.JwtTokenProvider;
 import com.example.mincheol1sr2.dto.LoginRequestDto;
 import com.example.mincheol1sr2.dto.LoginResponseDto;
 import com.example.mincheol1sr2.dto.SignupRequestDto;
@@ -15,101 +16,102 @@ import com.example.mincheol1sr2.repository.UserPrincipalRepository;
 import com.example.mincheol1sr2.repository.UserPrincipalRolesRepository;
 import com.sun.security.auth.UserPrincipal;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 public class UserService {
 
     private final UserJpaRepository userJpaRepository;
-    private final JwtProvider jwtProvider;
+   // private final JwtProvider jwtProvider;
+    private final JwtTokenProvider  jwtTokenProvider;
 
     private final UserPrincipalRepository userPrincipalRepository;
     private final RolesRepository rolesRepository;
     private final UserPrincipalRolesRepository userPrincipalRolesRepository;
 
-    private PasswordEncoder passwordEncoder;
+    private final PasswordEncoder passwordEncoder;
 
-    public boolean signUp(SignupRequestDto singUpRequestDto) {
-        String email =  singUpRequestDto.getEmail();
-        String password = singUpRequestDto.getPassword();
-
-        if (userPrincipalRepository.existsByEmail(email)) {
-            return false;
-        }
-        // 2. 유저가 있으면 ID만 등록 아니면 유저 만들기
-        UserEntity userFound = userJpaRepository.findUserByEmail(email)
-                .orElseGet(() -> userJpaRepository.save(UserEntity.builder()
-                                                                    .email(email)
-                                                                    .build()));
-        // 3. Password 등록 기본 ROLE_USER
-
-        RolesEntity roles = rolesRepository.findByEmail("ROLE_USER")
-                .orElseThrow(() -> new IllegalArgumentException("Role not found"));
-
-        UserPrincipalEntity userPrincipalEntity = UserPrincipalEntity.builder()
-                .email(email)
-                .password(passwordEncoder.encode(password))
-                .build();
-
-        userPrincipalRepository.save(userPrincipalEntity);
-        userPrincipalRolesRepository.save(
-                UserPrincipalRolesEntity.builder()
-                        .roles(roles)
-                        .userPrincipalEntity(userPrincipalEntity)
-                        .build()
-
-        );
-
-        return true;
-
-    }
+    private final AuthenticationManager authenticationManager;
 
     @Transactional
-    public SignupResponseDto signup(SignupRequestDto signupRequestDto) {
+    public SignupResponseDto signup(SignupRequestDto signUpRequestDto) {
+        String email = signUpRequestDto.getEmail();
+        String password = signUpRequestDto.getPassword();
 
-        // 1. 이메일 중복 검사
-        if (userJpaRepository.existsByEmail(signupRequestDto.getEmail())) {
+        if (userPrincipalRepository.existsByEmail(email)) {
             throw new IllegalArgumentException("이미 존재하는 이메일입니다.");
         }
 
-        // 2. 패스워드 등 정보로 UserEntity 생성 (보통 비밀번호 암호화 추가)
-        UserEntity userEntity = UserEntity.builder()
-                .email(signupRequestDto.getEmail())
-                .password(signupRequestDto.getPassword()) // 보안상 암호화 추천!
+        // 유저 정보가 없으면 생성
+        UserEntity user = userJpaRepository.findUserByEmail(email)
+                .orElseGet(() -> userJpaRepository.save(UserEntity.builder()
+                        .email(email)
+                        .password(passwordEncoder.encode(password))
+                        .build()));
+
+        // 기본 권한(ROLE_USER) 엔티티 조회
+        RolesEntity role = rolesRepository.findByEmail("ROLE_USER")
+                .orElseThrow(() -> new IllegalArgumentException("Role not found"));
+
+        // 인증용 유저 정보 저장 (비밀번호 암호화)
+        UserPrincipalEntity userPrincipal = UserPrincipalEntity.builder()
+                .email(email)
+                .password(passwordEncoder.encode(password))
+                .user(user) // 필요하다면 UserEntity와 연관관계 매핑
                 .build();
+        userPrincipalRepository.save(userPrincipal);
 
-        // 3. 저장
-        UserEntity saved = userJpaRepository.save(userEntity);
+        // 유저와 권한 연관 엔티티 저장
+        userPrincipalRolesRepository.save(
+                UserPrincipalRolesEntity.builder()
+                        .roles(role)
+                        .userPrincipalEntity(userPrincipal)
+                        .build()
+        );
 
-        // 4. 저장 결과로 ResponseDto 만들어 반환
+        // DTO 반환
         return SignupResponseDto.builder()
-                .email(saved.getEmail())
+                .email(email)
                 .message("회원가입 성공!")
+                .role(role.getEmail())
                 .build();
     }
 
-    @Transactional(readOnly = true)
-    public LoginResponseDto login(LoginRequestDto  loginRequestDto) {
 
-        UserEntity user = userJpaRepository.findByEmailAndPassword(loginRequestDto.getEmail(), loginRequestDto.getPassword())
+
+
+    @Transactional(readOnly = true)
+    public LoginResponseDto login(LoginRequestDto loginRequestDto) {
+        UserEntity user = userJpaRepository.findUserByEmail(loginRequestDto.getEmail())
                 .orElseThrow(() -> new IllegalArgumentException("이메일또는 비밀번호가 다릅니다."));
 
-        if (!user.getPassword().equals(loginRequestDto.getPassword())) {
+        if (!passwordEncoder.matches(loginRequestDto.getPassword(), user.getPassword())) {
             throw new IllegalArgumentException("이메일또는 비밀번호가 다릅니다.");
         }
 
-        String accessToken = jwtProvider.generateToken(user);
+        // 권한(roles) 리스트 추출
+        UserPrincipalEntity userPrincipal = userPrincipalRepository.findByEmailFetchJoin(loginRequestDto.getEmail())
+                .orElseThrow(() -> new IllegalArgumentException("User not found"));
 
+        List<String> roles = userPrincipal.getUserPrincipalRoles().stream()
+                .map(r -> r.getRoles().getEmail()) // "ROLE_USER"
+                .collect(Collectors.toList());
+
+        String accessToken = jwtTokenProvider.createToken(user.getEmail(), roles);
 
         return LoginResponseDto.builder()
                 .email(user.getEmail())
                 .message("로그인 성공!")
                 .accessToken(accessToken)
                 .build();
-
     }
+
 }

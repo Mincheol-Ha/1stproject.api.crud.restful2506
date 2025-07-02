@@ -46,14 +46,29 @@ public class CommentService {
 
 
     @Transactional
-    public void updateComment(Integer id,@RequestBody CommentRequestDto commentRequestDto) {
+    public CommentResponseDto updateComment(Integer id,@RequestBody CommentRequestDto commentRequestDto) {
         CommentEntity comment = commentJpaRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("댓글이 없습니다."));
+
+        comment.update(commentRequestDto.getContent());
+
+        CommentEntity savedComment = commentJpaRepository.save(comment);
+
+        return CommentResponseDto.builder()
+                .postId(comment.getPost() != null ? comment.getPost().getId() : null)
+                .content(comment.getContent())
+                .updatedAt(comment.getUpdateAt())
+                .message("댓글 수정 완료")
+                .build();
     }
 
     @Transactional
-    public void deleteComment(Integer id) {
+    public CommentResponseDto deleteComment(Integer id) {
         commentJpaRepository.deleteById(id);
+
+        return CommentResponseDto.builder()
+                .message("삭제 되었습니다.")
+                .build();
 
     }
 

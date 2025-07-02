@@ -14,20 +14,28 @@ import org.springframework.stereotype.Component;
 import java.util.Base64;
 import java.util.Date;
 import java.util.List;
+import io.jsonwebtoken.security.Keys;
+import java.nio.charset.StandardCharsets;
+import java.security.Key;
 
 @Component
 @RequiredArgsConstructor
 public class JwtTokenProvider {
 
-    private final String secretKey = Base64.getEncoder()
-            .encodeToString("super-coding".getBytes());
+    private final Key secretKey = Keys.hmacShaKeyFor("SuperCodingFirstProjectSecretKey!!!!!##@@".getBytes(StandardCharsets.UTF_8));
 
     private long tokenValidMillisecond =  1000L * 60 * 60;
 
     private final UserDetailsService userDetailsService;
 
+
+
     public String resolveToken(HttpServletRequest request) {
-        return request.getHeader("X-AUTH-TOKEN");
+        String bearerToken = request.getHeader("Authorization");
+        if (bearerToken != null && bearerToken.startsWith("Bearer ")) {
+            return bearerToken.substring(7); // "Bearer " 이후만 반환!
+        }
+        return null;
     }
 
     public String createToken(String email, List<String> roles) {
@@ -38,15 +46,19 @@ public class JwtTokenProvider {
                 .setClaims(claims)
                 .setIssuedAt(now)
                 .setExpiration(new Date(now.getTime() + tokenValidMillisecond))
-                .signWith(SignatureAlgorithm.HS256, secretKey)
+                .signWith(secretKey, SignatureAlgorithm.HS256)
                 .compact();
     }
 
     public boolean validateToken(String jwtToken) {
         try {
-            Claims claims = Jwts.parser().setSigningKey(secretKey).parseClaimsJws(jwtToken).getBody();
+            Claims claims = Jwts.parserBuilder()
+                    .setSigningKey(secretKey)
+                    .build()
+                    .parseClaimsJws(jwtToken)
+                    .getBody();
             Date now = new Date();
-            return !claims.getExpiration().after(now);
+            return !claims.getExpiration().before(now); // before가 맞음! (만료시간이 now보다 전이면 만료됨)
         } catch (Exception e) {
             return false;
         }
@@ -58,6 +70,11 @@ public class JwtTokenProvider {
     }
 
     private String getUserEmail(String jwtToken) {
-        return Jwts.parser().setSigningKey(secretKey).parseClaimsJws(jwtToken).getBody().getSubject();
+        return Jwts.parserBuilder()
+                .setSigningKey(secretKey)
+                .build()
+                .parseClaimsJws(jwtToken)
+                .getBody()
+                .getSubject();
     }
 }

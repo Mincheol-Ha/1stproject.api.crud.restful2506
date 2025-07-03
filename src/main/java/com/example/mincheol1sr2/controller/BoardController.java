@@ -9,6 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.nio.file.AccessDeniedException;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api")
@@ -42,5 +43,15 @@ public class BoardController {
     @DeleteMapping("/posts/{postId}")
     public PostResponseDto deletePost(@PathVariable Integer postId) {
         return postService.deletePost(postId);
+    }
+
+    @GetMapping("/posts")
+    public List<PostResponseDto> getAllPosts() {
+        return postService.getAllPosts();
+    }
+
+    @GetMapping("/posts/author/{email}")
+    public List<PostResponseDto> getPostsByAuthor(@PathVariable String email) {
+        return postService.getPostsByAuthor(email);
     }
 }

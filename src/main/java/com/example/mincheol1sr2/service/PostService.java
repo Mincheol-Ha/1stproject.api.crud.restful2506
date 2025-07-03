@@ -13,6 +13,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -93,4 +95,22 @@ public class PostService {
                 .build();
 
     }
+
+    public List<PostResponseDto> getAllPosts() {
+        return postJpaRepository.findAll()
+                .stream()
+                .map(PostResponseDto::fromEntity)
+                .collect(Collectors.toList());
+    }
+
+    public List<PostResponseDto> getPostsByAuthor(String email) {
+        return postJpaRepository.findByAuthor(email)
+                .stream()
+                .map(PostResponseDto::fromEntity)
+                .collect(Collectors.toList());
+    }
+
+
+
+
 }

@@ -14,10 +14,10 @@ public class LikeController {
 
     private final PostLikeService postLikeService;
 
-    @PostMapping("/likes/{postId}")
-    public PostLikeResponseDto addLike(@PathVariable Integer postId) {
-        return postLikeService.addLike(postId);
-    }
+//    @PostMapping("/likes/{postId}")
+//    public PostLikeResponseDto addLike(@PathVariable Integer postId) {
+//        return postLikeService.addLike(postId);
+//    }
 
     @PostMapping("/togglelikes/{postId}")
     public PostLikeResponseDto toggleLike(@PathVariable Integer postId) {

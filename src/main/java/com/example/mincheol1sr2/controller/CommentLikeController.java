@@ -21,10 +21,10 @@ public class CommentLikeController {
 
     private final CommentLikeService commentLikeService;
 
-    @PostMapping("/commentlikes")
-    public CommentLikeResponseDto addLike(@RequestBody CommentLikeRequestDto commentLikeRequestDto) {
-        return commentLikeService.addCommentLike(commentLikeRequestDto);
-    }
+//    @PostMapping("/commentlikes")
+//    public CommentLikeResponseDto addLike(@RequestBody CommentLikeRequestDto commentLikeRequestDto) {
+//        return commentLikeService.addCommentLike(commentLikeRequestDto);
+//    }
 
     @PostMapping("/comments/{commentId}/likes/toggle")
     public CommentLikeResponseDto toggleCommentLike(@PathVariable Integer commentId) {

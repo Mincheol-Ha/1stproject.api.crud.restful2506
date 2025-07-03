@@ -9,5 +9,5 @@ import java.util.Optional;
 
 @Repository
 public interface PostJpaRepository extends JpaRepository<PostEntity, Integer> {
-    ;
+    List<PostEntity> findByAuthor(String author);
 }

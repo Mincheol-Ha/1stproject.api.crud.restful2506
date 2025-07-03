@@ -37,10 +37,9 @@ public class SecurityConfigration {
                 )
                 .authorizeHttpRequests(authz -> authz
                         .requestMatchers("/resources/static/**", "/api/signup/**", "/api/login","/api/*/likes/count"
-                                ,"/api/comments/post/*").permitAll()
+                                ,"/api/comments/post/*", "/api/posts/author/**").permitAll()
                         .requestMatchers("/api/**").hasAnyRole("USER", "ADMIN")
                         .anyRequest().authenticated()// 추가: 그 외엔 인증 필요
-
                 )
                 .exceptionHandling(exception -> exception
                         .authenticationEntryPoint(customAuthenticationEntryPoint)

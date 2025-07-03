@@ -7,6 +7,8 @@ import com.example.mincheol1sr2.entity.UserEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.Optional;
+
 @Repository
 public interface PostLikeRepository extends JpaRepository<PostLikeEntity, Integer> {
 
@@ -14,4 +16,6 @@ public interface PostLikeRepository extends JpaRepository<PostLikeEntity, Intege
     void deleteByUserAndPost(UserEntity user, PostEntity post);
 
     Integer countByPost(PostEntity post);
+
+    Optional<PostLikeEntity> findByUserAndPost(UserEntity user, PostEntity post);
 }

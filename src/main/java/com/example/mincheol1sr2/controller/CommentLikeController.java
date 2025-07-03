@@ -26,8 +26,8 @@ public class CommentLikeController {
         return commentLikeService.addCommentLike(commentLikeRequestDto);
     }
 
-    @DeleteMapping("/commentlikes")
-    public CommentLikeDeleteResponseDto removeLike(@RequestBody CommentLikeDeleteRequestDto commentLikeDeleteRequestDto) {
-        return commentLikeService.removeCommentLike(commentLikeDeleteRequestDto);
+    @PostMapping("/comments/{commentId}/likes/toggle")
+    public CommentLikeResponseDto toggleCommentLike(@PathVariable Integer commentId) {
+        return commentLikeService.toggleCommentLike(commentId);
     }
 }

@@ -6,6 +6,7 @@ import com.example.mincheol1sr2.entity.PostEntity;
 import com.example.mincheol1sr2.repository.PostJpaRepository;
 import com.example.mincheol1sr2.repository.UserJpaRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -46,8 +47,16 @@ public class PostService {
 
     @Transactional
     public PostResponseDto updatePost(Integer id, PostRequestDto postRequestDto) {
+
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        String currentUserEmail = auth.getName();
+
         PostEntity post = postJpaRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("게시글이 없습니다."));
+
+        if(!post.getAuthor().equals(currentUserEmail)) {
+            throw new AccessDeniedException("작성자만 접근할 수 있습니다.");
+        }
 
         // 값만 업데이트
         post.update(postRequestDto.getTitle(), postRequestDto.getContent());
@@ -65,7 +74,23 @@ public class PostService {
     }
 
     @Transactional
-    public void deletePost(Integer id) {
+    public PostResponseDto deletePost(Integer id) {
+
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        String currentUserEmail = auth.getName();
+
+        PostEntity post = postJpaRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("게시글이 없습니다."));
+
+        if(!post.getAuthor().equals(currentUserEmail)) {
+            throw new AccessDeniedException("작성자만 접근할 수 있습니다.");
+        }
+
         postJpaRepository.deleteById(id);
+
+        return PostResponseDto.builder()
+                .message("게시글이 삭제 되었습니다.")
+                .build();
+
     }
 }

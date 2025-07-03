@@ -23,4 +23,6 @@ public interface UserJpaRepository extends JpaRepository<UserEntity, PostLikeReq
     Optional<UserPrincipalEntity> findByEmailFetchJoin(String email);
 
     Optional<UserEntity> findUserByEmail(String email);
+
+    Optional<UserEntity> findByEmail(String currentUserEmail);
 }

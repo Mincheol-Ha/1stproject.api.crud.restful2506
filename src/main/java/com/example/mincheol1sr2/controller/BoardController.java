@@ -8,6 +8,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.nio.file.AccessDeniedException;
+
 @RestController
 @RequestMapping("/api")
 @RequiredArgsConstructor
@@ -38,8 +40,7 @@ public class BoardController {
     }
 
     @DeleteMapping("/posts/{postId}")
-    public ResponseEntity<String> deletePost(@PathVariable Integer postId) {
-        postService.deletePost(postId);
-        return ResponseEntity.ok("게시글 삭제");
+    public PostResponseDto deletePost(@PathVariable Integer postId) {
+        return postService.deletePost(postId);
     }
 }

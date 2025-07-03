@@ -39,6 +39,9 @@ public class PostEntity {
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<CommentEntity> comments;
 
+    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<PostLikeEntity> likes;
+
     public void update(String title, String content) {
         this.title = title;
         this.content = content;

@@ -14,24 +14,20 @@ public class LikeController {
 
     private final PostLikeService postLikeService;
 
-    @PostMapping("/likes")
-    public PostLikeResponseDto addLike(@RequestBody PostLikeResponseDto postLikeResponseDto) {
-        return postLikeService.addLike(postLikeResponseDto);
+    @PostMapping("/likes/{postId}")
+    public PostLikeResponseDto addLike(@PathVariable Integer postId) {
+        return postLikeService.addLike(postId);
     }
 
-    @DeleteMapping("/{postId}/likes")
-    public ResponseEntity<?> removeLike(
-            @PathVariable Integer postId,
-            @RequestBody PostLikeRequestDto postLikeRequestDto) {
-
-        postLikeService.removeLike(postId, postLikeRequestDto);
-        return ResponseEntity.ok("좋아요 취소!");
+    @PostMapping("/togglelikes/{postId}")
+    public PostLikeResponseDto toggleLike(@PathVariable Integer postId) {
+        return postLikeService.toggleLike(postId);
     }
 
     // 좋아요 개수 조회
     @GetMapping("/{postId}/likes/count")
-    public ResponseEntity<Integer> countLikes(@PathVariable Integer postId) {
-        int count = postLikeService.countLikes(postId);
-        return ResponseEntity.ok(count);
+    public PostLikeResponseDto countLikes(@PathVariable Integer postId) {
+        return postLikeService.countLikes(postId);
+
     }
 }

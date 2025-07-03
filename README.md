@@ -34,6 +34,12 @@
     - PathVariable: postId
     - RequestBody: PostRequestDto
     - Response: PostResponseDto
+- **GET /api/posts**
+    - RequestBody: List<PostResponseDto> 
+    - Response: "전체 게시글 조회"
+- **POST /api/posts/author/{email}**
+    - PathVariable: email
+    - Response: "이메일로 게시글 조회"
 - **DELETE /api/posts/{postId}**
     - PathVariable: postId
     - Response: "게시글 삭제"
@@ -54,18 +60,16 @@
     - Response: "삭제 되었습니다."
 
 ### 4. 댓글 좋아요(Comment Like)
-- **POST /api/commentlikes**
+- **POST /api/comments/{commentId}/likes/toggle"**
     - RequestBody: CommentLikeRequestDto
     - Response: CommentLikeResponseDto
-- **DELETE /api/commentlikes**
-    - RequestBody: CommentLikeDeleteRequestDto
-    - Response: CommentLikeDeleteResponseDto
+    - Response: "좋아요 등록, 취소"
 
 ### 5. 게시글 좋아요(Post Like)
-- **DELETE /api/{postId}/likes**
+- **POST /api/togglelikes/{postId}**
     - PathVariable: postId
     - RequestBody: PostLikeRequestDto
-    - Response: "좋아요 취소!"
+    - Response: "좋아요 등록, 취소"
 - **GET /api/{postId}/likes/count**
     - PathVariable: postId
     - Response: Integer (좋아요 개수)
